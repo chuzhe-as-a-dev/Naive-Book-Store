@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <meta name="description" content="Naive Bookstore - A Web Application Development course project"/>
+    <meta name="author" content="Tang Chuzhe"/>
+    <!--    <link rel="icon" href="">-->
+    <title>Naïve Bookstore Admin - Books</title>
+
+    <!-- Bootstrap -->
+    <link href="/css/framework/bootstrap.css" rel="stylesheet"/>
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <link href="/css/framework/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
+
+    <!-- Custom styles for this template -->
+    <link href="/css/navbar-adjust.css" rel="stylesheet"/>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="/js/framework/html5shiv.js"></script>
+    <script src="/js/framework/respond.js"></script>
+    <![endif]-->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="/js/framework/jquery-3.2.0.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="/js/framework/bootstrap.js"></script>
+    <script src="/js/admin/admin_users.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <!-- nav title -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+            </button>
+            <a class="navbar-brand" href="/">Naïve Book Store</a>
+        </div>
+
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/admin/books">Book</a></li>
+                <li class="active"><a href="/admin/users">User</a></li>
+                <li><a href="/admin/statistics">Statistics</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <!--header-->
+                <div class="panel-heading">
+                    <h3 class="panel-title">User Records</h3>
+                </div>
+
+                <!-- Table -->
+                <div class="table-responsive">
+                    <table class="table table-striped ">
+                        <thead>
+                        <tr>
+                            <th>
+                                <button type="button" class="btn btn-default btn-xs add-button" aria-label="Left Align"
+                                        data-toggle="modal" data-target="#edit-modal">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                </button>
+                            </th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Credit</th>
+                            <th>password</th>
+                            <!--<th>Avatar</th>-->
+                            <th>Deleted</th>
+                            <th>Admin</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        <tr th:each="user : ${users}">
+                            <th class="user-id" th:text="${user.userId}"></th>
+                            <td class="username" th:text="${user.username}"></td>
+                            <td class="email" th:text="${user.email}"></td>
+                            <td class="credit" th:text="${user.credit}/100"></td>
+                            <td class="password" th:text="${user.password}"></td>
+                            <!--<td class="avatar-filename" th:text="${user.avatarFilename}"></td>-->
+                            <td class="deleted" th:text="${user.deleted}"></td>
+                            <td class="is-admin" th:text="${user.isAdmin}"></td>
+                            <td width="40">
+                                <button type="button" class="btn btn-default btn-xs edit-button" data-toggle="modal"
+                                        data-target="#edit-modal">Edit
+                                </button>
+                            </td>
+                            <td width="100">
+                                <button type="button" class="btn btn-danger btn-xs remove-button">Remove
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="panel-footer">
+                    So many users in store
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="edit-modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">Edit user</h4>
+            </div>
+            <div class="modal-body">
+                <form id="info-form" method="post">
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label class="control-label" for="username">Username</label>
+                            <input type="text" name="username" id="username" class="form-control"
+                                   placeholder="Username" maxlength="32"/>
+                            <span class="help-block"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label class="control-label" for="password">Password</label>
+                            <input type="text" name="password" class="form-control" id="password" placeholder="Password"
+                                   maxlength="255"/>
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label class="control-label" for="email">Email</label>
+                            <input type="email" name="email" class="form-control" id="email" placeholder="Email"/>
+                            <span class="help-block"></span>
+                        </div>
+                        <!--<div class="form-group col-md-4">-->
+                            <!--<label class="control-label" for="avatar-filename">Avatar filename</label>-->
+                            <!--<input type="text" name="avatarFilename" class="form-control" id="avatar-filename"-->
+                                   <!--placeholder="Avatar filename"/>-->
+                            <!--<span class="help-block"></span>-->
+                        <!--</div>-->
+                        <div class="form-group col-md-6">
+                            <label class="control-label" for="credit">Credit</label>
+                            <input name="credit" class="form-control" id="credit" data-parsley-type="number" step="0.01"
+                                   min="0.01" max="999999999999999999.99" placeholder="Credit"/>
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-2">
+                            <label>
+                                <input name="deleted" type="checkbox" id="deleted"/> Deleted
+                            </label>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <label>
+                                <input name="isAdmin" type="checkbox" id="is-admin"/> Admin
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" id="modal-submit-button" class="btn btn-primary" data-dismiss="modal">Submit
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

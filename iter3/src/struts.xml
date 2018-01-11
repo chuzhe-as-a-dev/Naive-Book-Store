@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+        "http://struts.apache.org/dtds/struts-2.3.dtd">
+
+<struts>
+    <constant name="struts.devMode" value="true"/>
+    <package name="admin" extends="struts-default" namespace="/admin">
+        <!-- admin - books-->
+        <action name="books" class="me.chuzhe.bookstore.action.BookAction" method="listAll">
+            <result name="success">/view/AdminBooks.jsp</result>
+        </action>
+    </package>
+</struts>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <meta name="description" content="Naive Bookstore - A Web Application Development course project">
+    <meta name="author" content="Tang Chuzhe">
+    <!--    <link rel="icon" href="">-->
+    <title>Naïve Bookstore</title>
+
+    <!-- Bootstrap -->
+    <link href="css/framework/bootstrap.css" rel="stylesheet">
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <link href="css/framework/ie10-viewport-bug-workaround.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="css/navbar-adjust.css" rel="stylesheet">
+    <link href="css/index.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="js/framework/html5shiv.js"></script>
+    <script src="js/framework/respond.js"></script>
+    <![endif]-->
+
+    <!-- Vue.js  -->
+    <script src="js/framework/vue.js"></script>
+</head>
+<body>
+
+<!-- login modal -->
+<div class="modal fade bs-example-modal-sm" id="login-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h3 class="modal-title">{{ modal_header }}</h3>
+            </div>
+            <div class="modal-body">
+                <form action="/login" method="post" @submit="validate">
+                    <div :class="['form-group', identifier_valid ? '' : 'has-error']">
+                        <label class="control-label" for="login-identifier">Username or email</label>
+                        <input type="text" class="form-control" id="login-identifier" name="login-identifier"
+                               v-model="identifier" aria-describedby="identifier-error">
+                        <span id="identifier-error" class="help-block">{{ identifier_error }}</span>
+                    </div>
+                    <div :class="['form-group', password_valid ? '' : 'has-error']">
+                        <label class="control-label" for="login-password">Password</label>
+                        <input type="password" class="form-control" id="login-password" name="login-password"
+                               v-model="password">
+                        <span id="password-error" class="help-block">{{ password_error }}</span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Log in</button>
+                    <button class="btn btn-default">Sign up</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- book modal -->
+<script type="text/x-template" id="book-modal-temp">
+    <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="" id="book-modal">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <!-- info part -->
+                    <br>
+                    <div class="row">
+                        <!-- book cover -->
+                        <div class="col-md-4 col-md-offset-1">
+                            <img :src="'/img/' + book.coverFilename" :alt="'cover of ' + book.bookName" class="img-thumbnail">
+                        </div>
+                        <div class="col-md-6">
+                            <!-- book info -->
+                            <h2>{{ book.bookName }} <small>{{ book.author }}</small></h2><p></p>
+                            <br>
+
+                            <p v-for="paragraph in book.description.split('\n') ">{{ paragraph }}</p>
+
+                            <p>
+                                <span class="label label-info">¥ {{ book.price }}</span>
+                                <span class="label label-info">{{ book.stock }} left</span>
+                            </p>
+
+                            <!-- add to cart button -->
+                            <div class="col-md-5 input-group">
+                                <input type="number" min="0" class="form-control" placeholder="quantity" aria-describedby="book-unit-price">
+                                <span class="input-group-btn">
+                                <button type="button" class="btn btn-default" aria-label="Left Align">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                </button>
+                            </span>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+
+                    <!-- comment part -->
+                    <template v-if="comments.length > 0">
+                        <div class="row">
+                            <div class="col-md-10 col-md-offset-1">
+                                <h2>User comments</h2>
+                            </div>
+                        </div>
+                    </template>
+                    <template v-for="comment in comments">
+                        <div class="row">
+                            <div class="col-md-10 col-md-offset-1">
+                                <h3>{{ comment.title }}</h3>
+                                <strong>{{ comment.user.username }}</strong> at <strong>{{ comment.commentDate }}</strong>
+                                <p>{{ comment.comment }}</p>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/x-template" id="app-nav-temp">
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+
+            <!-- nav title -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                        aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">{{ app_name }}</a>
+            </div>
+
+            <!-- nav tag and search box -->
+            <div id="navbar" class="navbar-collapse collapse">
+
+                <!-- tags -->
+                <ul class="nav navbar-nav navbar-right">
+                    <li :class="home_active ? 'active' : ''"><a href="#">Home</a></li>
+                    <li :class="cart_active ? 'active' : ''"><a href="#">Cart</a></li>
+                    <template v-if="logged_in">
+                        <li id="fat-menu" class="dropdown">
+                            <a href="#" class="dropdown-toggle" id="account-dropdown" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Account<span class="caret"></span> </a>
+                            <ul class="dropdown-menu" aria-labelledby="account-dropdown">
+                                <li><a @click="logout">Log out</a></li>
+                            </ul>
+                        </li>
+                    </template>
+                    <template v-else>
+                        <li><a data-toggle="modal" data-target="#login-modal" href="#">Log in</a></li>
+                    </template>
+                </ul>
+
+                <!-- search box -->
+                <form class="navbar-form navbar-right" action="#" method="get">
+                    <div class="input-group">
+                        <input type="text" class="form-control" :placeholder="search_text" name="q">
+                        <span class="input-group-btn">
+                        <button class="btn btn-default" type="button">Go!</button>
+                    </span>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </nav>
+</script>
+
+<script type="text/x-template" id="book-grid-temp">
+    <div class="container">
+        <template v-for="book_set in book_sets">
+            <div class="row">
+                <template v-for="book in book_set">
+                    <div class="col-xs-6 col-sm-4 col-md-3" :id="book.bookId">
+                        <div class="thumbnail">
+                            <img class="book-cover" :src="'/img/' + book.coverFilename" :alt="'cover of ' + book.bookName" @click="click_cover" data-toggle="modal" data-target="#book-modal">
+                            <div class="caption">
+                                <h3 class="book-title" @click="click_name" data-toggle="modal" data-target="#book-modal">{{ book.bookName }}
+                                    <small>{{ book.author }}</small>
+                                </h3>
+                                <p>{{ book.description | des_preview }}</p>
+                                <span class="label label-info">¥ {{ book.price }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </template>
+    </div>
+</script>
+
+<div id="app">
+    <book-modal :book_id="book_id"></book-modal>
+    <app-nav id="app-nav"></app-nav>
+    <book-grid id="book-grid" @query_book="query_book"></book-grid>
+
+    <div class="container">
+        <footer class="footer">
+            <p>&copy; 2017 Tang Chuzhe</p>
+        </footer>
+    </div>
+</div>
+
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="js/framework/jquery-3.2.0.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/framework/bootstrap.js"></script>
+<!-- Vue for this page -->
+<script src="js/index.js"></script>
+</body>
+</html>

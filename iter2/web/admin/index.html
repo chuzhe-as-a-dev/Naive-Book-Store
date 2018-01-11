@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <meta name="description" content="Naive Bookstore - A Web Application Development course project">
+    <meta name="author" content="Tang Chuzhe">
+    <!--    <link rel="icon" href="">-->
+    <title>Naïve Bookstore</title>
+
+    <!-- Bootstrap -->
+    <link href="../css/framework/bootstrap.css" rel="stylesheet">
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <link href="../css/framework/ie10-viewport-bug-workaround.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="../css/navbar-adjust.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="../js/framework/html5shiv.js"></script>
+    <script src="../js/framework/respond.js"></script>
+    <![endif]-->
+
+    <!-- Vue.js  -->
+    <script src="../js/framework/vue.js"></script>
+
+    <!-- css for vue transition -->
+    <link href="../css/admin.css" rel="stylesheet">
+</head>
+<body>
+
+<script type="text/x-template" id="app-nav-temp">
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+
+            <!-- nav title -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                        aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">{{ app_name }}</a>
+            </div>
+
+            <!-- nav tag and search box -->
+            <div id="navbar" class="navbar-collapse collapse">
+                <!-- tags -->
+                <ul class="nav navbar-nav navbar-right">
+                    <li :class="book_active ? 'active' : ''" @click="$emit('change_table', 'book')"><a >Book</a></li>
+                    <li :class="user_active ? 'active' : ''" @click="$emit('change_table', 'user')"><a >User</a></li>
+                    <li :class="order_active ? 'active' : ''" @click="$emit('change_table', 'order')"><a >Order</a></li>
+                    <li><a href="/index.html">Back to user page</a></li>
+                </ul>
+            </div>
+
+        </div>
+    </nav>
+</script>
+
+<script type="text/x-template" id="book-list-temp">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <!--header-->
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Book Records</h3>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="table-responsive">
+                        <table class="table table-striped ">
+                            <thead>
+                            <tr>
+                                <th>
+                                    <button type="button" class="btn btn-default btn-xs" aria-label="Left Align"  data-toggle="modal" data-target="#book-edit-modal" @click="add_book">
+                                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                    </button>
+                                </th>
+                                <th>Book Name</th><th>ISBN</th><th>Author</th><th>Price</th><th>Stock</th><th></th><th></th></tr>
+                            </thead>
+                            <tbody>
+                            <template v-for="(book, key) in books">
+                                <tr :id="key">
+                                    <th scope="row">{{ book.bookId }}</th>
+                                    <td>{{ book.bookName }}</td>
+                                    <td>{{ book.isbn }}</td>
+                                    <td>{{ book.author }}</td>
+                                    <td>{{ book.price }}</td>
+                                    <td>{{ book.stock }}</td>
+                                    <td width="40"><button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#book-edit-modal" @click="edit_book">Edit</button></td>
+                                    <td width="100"><button type="button" class="btn btn-danger btn-xs" @click="remove_book">Remove</button></td>
+                                </tr>
+                            </template>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!--footer-->
+                    <div class="panel-footer">{{ books.length }} books in store</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/x-template" id="user-list-temp">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <!--header-->
+                    <div class="panel-heading">
+                        <h3 class="panel-title">User Records</h3>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="table-responsive">
+                        <table class="table table-striped ">
+                            <thead>
+                            <tr>
+                                <th>
+                                    <button type="button" class="btn btn-default btn-xs" aria-label="Left Align"  data-toggle="modal" data-target="#user-edit-modal" @click="add_user">
+                                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                    </button>
+                                </th>
+                                <th>Username</th><th>Email</th><th>Credit</th><th></th><th></th></tr>
+                            </thead>
+                            <tbody>
+                            <template v-for="(user, key) in users">
+                                <tr :id="key">
+                                    <th scope="row">{{ user.userId }}</th>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>{{ user.credit }}</td>
+                                    <td width="40"><button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#user-edit-modal" @click="edit_user">Edit</button></td>
+                                    <td width="100"><button type="button" class="btn btn-danger btn-xs" @click="remove_user">Remove</button></td>
+                                </tr>
+                            </template>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!--footer-->
+                    <div class="panel-footer">{{ users.length }} users in store</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/x-template" id="order-list-temp">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <!--header-->
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Order Records</h3>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="table-responsive">
+                        <table class="table table-striped ">
+                            <thead>
+                            <tr>
+                                <th>
+                                    <button type="button" class="btn btn-default btn-xs" aria-label="Left Align"  data-toggle="modal" data-target="#order-edit-modal" @click="add_order">
+                                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                    </button>
+                                </th>
+                                <th>User ID</th><th>Total price</th><th>Order Date</th><th>Deliver to</th><th></th><th></th></tr>
+                            </thead>
+                            <tbody>
+                            <template v-for="(order, key) in orders">
+                                <tr :id="key">
+                                    <th scope="row">{{ order.orderId }}</th>
+                                    <td>{{ order.user.userId }}</td>
+                                    <td>{{ order.totalPrice }}</td>
+                                    <td>{{ order.orderDate }}</td>
+                                    <td>{{ order.deliverTo }}</td>
+                                    <td width="40"><button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#order-edit-modal" @click="edit_order">Edit</button></td>
+                                    <td width="100"><button type="button" class="btn btn-danger btn-xs" @click="remove_order">Remove</button></td>
+                                </tr>
+                            </template>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!--footer-->
+                    <div class="panel-footer">{{ orders.length }} orders in store</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/x-template" id="book-edit-modal-temp">
+    <div class="modal fade" tabindex="-1" role="dialog" id="book-edit-modal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">{{ modal_header }}</h4>
+                </div>
+                <div class="modal-body">
+                    <form @submit.prevent="">
+                        <div class="row">
+                            <div :class="['form-group', 'col-md-6', book_name_valid ? '' : 'has-error']">
+                                <label class="control-label" for="book_name">Book name</label>
+                                <input type="text" class="form-control" id="book_name" placeholder="Book name" v-model="book_name">
+                                <span class="help-block">{{ book_name_error }}</span>
+                            </div>
+                            <div :class="['form-group', 'col-md-6', author_valid ? '' : 'has-error']">
+                                <label class="control-label" for="author">Author</label>
+                                <input type="text" class="form-control" id="author" placeholder="Author" v-model="author">
+                                <span class="help-block">{{ author_error }}</span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div :class="['form-group', 'col-md-4', isbn_valid ? '' : 'has-error']">
+                                <label class="control-label" for="isbn">ISBN</label>
+                                <input type="text" class="form-control" id="isbn" placeholder="ISBN" v-model="isbn">
+                                <span class="help-block">{{ isbn_error }}</span>
+                            </div>
+                            <div :class="['form-group', 'col-md-4', price_valid ? '' : 'has-error']">
+                                <label class="control-label" for="price">Price</label>
+                                <input type="number" step="0.01" min="0.01" class="form-control" id="price"
+                                       placeholder="Price" v-model.number="price">
+                                <span class="help-block">{{ price_error }}</span>
+                            </div>
+                            <div :class="['form-group', 'col-md-4', stock_valid ? '' : 'has-error']">
+                                <label class="control-label" for="stock">Stock</label>
+                                <input type="number" min="1" class="form-control" id="stock" placeholder="Stock" v-model.number="stock">
+                                <span class="help-block">{{ stock_error }}</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div :class="['form-group', 'col-md-12', stock_valid ? '' : 'has-error']">
+                                <label class="control-label" for="description">Description</label>
+                                <textarea class="form-control" rows="8" id="description" placeholder="Description" v-model="description"></textarea>
+                                <span class="help-block">{{ description_error }}</span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" @click="submit">{{ submit_text }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/x-template" id="user-edit-modal-temp">
+    <div class="modal fade" tabindex="-1" role="dialog" id="user-edit-modal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">{{ modal_header }}</h4>
+                </div>
+                <div class="modal-body">
+                    <form @submit.prevent="">
+                        <div class="row">
+                            <div :class="['form-group', 'col-md-6', username_valid ? '' : 'has-error']">
+                                <label class="control-label" for="username">User name</label>
+                                <input type="text" class="form-control" id="username" placeholder="Username" v-model="username">
+                                <span class="help-block">{{ username_error }}</span>
+                            </div>
+                            <div :class="['form-group', 'col-md-6', password_valid ? '' : 'has-error']">
+                                <label class="control-label" for="password">Password</label>
+                                <input type="text" class="form-control" id="password" placeholder="Password" v-model="password">
+                                <span class="help-block">{{ password_error }}</span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div :class="['form-group', 'col-md-6', email_valid ? '' : 'has-error']">
+                                <label class="control-label" for="email">Email</label>
+                                <input type="text" class="form-control" id="email" placeholder="Email" v-model="email">
+                                <span class="help-block">{{ email_error }}</span>
+                            </div>
+                            <div :class="['form-group', 'col-md-6', credit_valid ? '' : 'has-error']">
+                                <label class="control-label" for="credit">Credit</label>
+                                <input type="number" step="0.01" min="0.01" class="form-control" id="credit"
+                                       placeholder="Credit" v-model.number="credit">
+                                <span class="help-block">{{ credit_error }}</span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" @click="submit">{{ submit_text }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/x-template" id="order-edit-modal-temp">
+    <div class="modal fade" tabindex="-1" role="dialog" id="order-edit-modal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">{{ modal_header }}</h4>
+                </div>
+                <div class="modal-body">
+                    <form @submit.prevent="">
+                        <div class="row">
+                            <div :class="['form-group', 'col-md-4', userId_valid ? '' : 'has-error']">
+                                <label class="control-label" for="userId">User ID</label>
+                                <input type="number" step="1" min="1" class="form-control" id="userId" placeholder="User ID" v-model="userId">
+                                <span class="help-block">{{ userId_error }}</span>
+                            </div>
+                            <div :class="['form-group', 'col-md-4', orderDate_valid ? '' : 'has-error']">
+                                <label class="control-label" for="orderDate">Order date</label>
+                                <input type="date" class="form-control" id="orderDate" placeholder="orderDate" v-model="orderDate">
+                                <span class="help-block">{{ orderDate_error }}</span>
+                            </div>
+                            <div :class="['form-group', 'col-md-4', totalPrice_valid ? '' : 'has-error']">
+                                <label class="control-label" for="totalPrice">Total price</label>
+                                <input type="number" step="0.01" min="0.01" class="form-control" id="totalPrice" placeholder="Total price" v-model.number="totalPrice">
+                                <span class="help-block">{{ totalPrice_error }}</span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div :class="['form-group', 'col-md-12', deliverTo_valid ? '' : 'has-error']">
+                                <label class="control-label" for="deliverTo">Deliver to</label>
+                                <input type="text" class="form-control" id="deliverTo"
+                                       placeholder="Deliver to" v-model="deliverTo">
+                                <span class="help-block">{{ deliverTo_error }}</span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" @click="submit">{{ submit_text }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<div id="app">
+    <book-edit-modal
+            :original="selected_book"
+            @book_submitted="update_books"></book-edit-modal>
+
+
+    <user-edit-modal
+            :original="selected_user"
+            @user_submitted="update_users"></user-edit-modal>
+
+    <order-edit-modal
+            :original="selected_order"
+            @order_submitted="update_orders"></order-edit-modal>
+
+    <app-nav
+            id="app-nav"
+            :active="show"
+            @change_table="change_table"></app-nav>
+
+    <transition name="component-fade" mode="out-in">
+        <book-list
+                v-if="show == 'book'"
+                :books="books"
+                @update_books="update_books"
+                @edit_book="edit_book"
+                @add_book="add_book"
+                @book_submitted="update_books"
+                @book_removed="update_books"></book-list>
+        <user-list
+                v-if="show == 'user'"
+                :users="users"
+                @update_users="update_users"
+                @edit_user="edit_user"
+                @add_user="add_user"
+                @user_submitted="update_users"
+                @user_removed="update_users"></user-list>
+        <order-list
+                v-if="show == 'order'"
+                :orders="orders"
+                @update_orders="update_orders"
+                @edit_order="edit_order"
+                @add_order="add_order"
+                @order_submitted="update_orders"
+                @order_removed="update_orders"></order-list>
+    </transition>
+
+    <div class="container">
+        <footer class="footer">
+            <p>&copy; 2017 Tang Chuzhe</p>
+        </footer>
+    </div>
+</div>
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="../js/framework/jquery-3.2.0.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="../js/framework/bootstrap.js"></script>
+<!-- Vue for this page -->
+<script src="../js/admin.js"></script>
+</body>
+</html>

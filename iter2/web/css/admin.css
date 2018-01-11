@@ -1,0 +1,17 @@
+.component-fade-enter-active, .component-fade-leave-active {
+    transition: opacity .3s ease;
+}
+.component-fade-enter, .component-fade-leave-active {
+    opacity: 0;
+}
+
+.component-slide-fade-enter-active {
+    transition: all .3s ease;
+}
+.component-slide-fade-leave-active {
+    transition: all .3s ease;
+}
+.component-slide-fade-enter, .component-slide-fade-leave-active {
+    transform: translateX(10px);
+    opacity: 0;
+}

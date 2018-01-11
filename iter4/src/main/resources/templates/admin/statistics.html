@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <meta name="description" content="Naive Bookstore - A Web Application Development course project"/>
+    <meta name="author" content="Tang Chuzhe"/>
+    <!--    <link rel="icon" href="">-->
+    <title>Naïve Bookstore Admin - Books</title>
+
+    <!-- Bootstrap -->
+    <link href="/css/framework/bootstrap.css" rel="stylesheet"/>
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <link href="/css/framework/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
+
+    <!-- Custom styles for this template -->
+    <link href="/css/navbar-adjust.css" rel="stylesheet"/>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="/js/framework/html5shiv.js"></script>
+    <script src="/js/framework/respond.js"></script>
+    <![endif]-->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="/js/framework/jquery-3.2.0.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="/js/framework/bootstrap.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <!-- nav title -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+            </button>
+            <a class="navbar-brand" href="/">Naïve Book Store</a>
+        </div>
+
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/admin/books">Book</a></li>
+                <li><a href="/admin/users">User</a></li>
+                <li class="active"><a href="/admin/statistics">Statistics</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-3 col-md-push-2">
+            <form method="get">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" placeholder="Username"
+                           th:value="${dto.username}"/>
+                </div>
+                <div class="form-group">
+                    <label for="isbn">ISBN</label>
+                    <input type="text" class="form-control" id="isbn" name="isbn" placeholder="ISBN"
+                           th:value="${dto.isbn}"/>
+                </div>
+                <div class="form-group">
+                    <label for="categogy">Category</label>
+                    <input type="text" class="form-control" id="categogy" name="category" placeholder="Category"
+                           th:value="${dto.category}"/>
+                </div>
+                <div class="form-group">
+                    <label for="startTime">Start time</label>
+                    <input type="datetime" class="form-control" id="startTime" name="startTime"
+                           placeholder="Start time" th:value="${dto.startTime}"/>
+                </div>
+                <div class="form-group">
+                    <label for="endTime">End time</label>
+                    <input type="datetime" class="form-control" id="endTime" name="endTime" placeholder="End time"
+                           th:value="${dto.endTime}"/>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-default">Check</button>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-5 col-md-push-2">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th class="col-md-4">Quantity<br/>
+                        <small>(selected)</small>
+                    </th>
+                    <th class="col-md-4">Value<br/>
+                        <small>(selected)</small>
+                    </th>
+                    <th class="col-md-4">Average price<br/>
+                        <small>(selected)</small>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td th:text="${stat.quantity_output}">@mdo</td>
+                    <td th:text="'$'+${stat.value_output / 100.0}">Otto</td>
+                    <td th:text="${stat.quantity_output > 0 ? '$'+#numbers.formatDecimal(stat.value_output / 100.0 / stat.quantity_output, 0, 2) : 'not available'}">
+                        @mdo
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Quantity<br/>
+                        <small>(total)</small>
+                    </th>
+                    <th class="col-md-4">Value<br/>
+                        <small>(total, item-wise)</small>
+                    </th>
+                    <th class="col-md-4">Average price<br/>
+                        <small>(total, item-wise)</small>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td th:text="${stat.quantity_total}">@mdo</td>
+                    <td th:text="'$'+${stat.quantity_times_original_price_total / 100.0}">Otto</td>
+                    <td th:text="${stat.quantity_total > 0 ? '$'+#numbers.formatDecimal(stat.quantity_times_original_price_total/ 100.0 / stat.quantity_total, 0, 2) : 'not available'}">
+                        @mdo
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th class="col-md-6">Value<br/>
+                        <small>(total, order-wise)</small>
+                    </th>
+                    <th class="col-md-6">Average price<br/>
+                        <small>(total, order-wise)</small>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td th:text="'$'+${stat.value_total / 100.0}">Otto</td>
+                    <td th:text="${stat.quantity_total > 0 ? '$'+#numbers.formatDecimal(stat.value_total/ 100.0 / stat.quantity_total, 0, 2) : 'not available'}">
+                        @mdo
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>
