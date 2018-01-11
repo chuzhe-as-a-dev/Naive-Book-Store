@@ -1,4 +1,4 @@
-# Naive book
+# Naive Book Store
 
 This is the course project of SE228 (Web Application Development), SJTU.
 
